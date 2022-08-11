@@ -1,23 +1,15 @@
 import datetime
+from dateutil import parser as dp
 import re
 
 
-class DatetimeParser():
+class parser():
 
-    MESSAGE = ''
+    _message = ''
 
     def setMessage(self, message):
-        self.MESSAGE = message
+        self._message = message
 
-    # def getMonthNumber(self, message):
-    #     months = ['янв', 'фев', 'мар', 'апр', 'мая' , 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-    #     for month in months:
-    #         if month in message:
-    #             number = months.index(month) + 1
-    #             result = str(number)
-    #             if number < 10:
-    #                 result = "0" + result
-    #             return result
 
     def monthToNum(self, shortMonth):
         return {
@@ -37,20 +29,22 @@ class DatetimeParser():
 
 
     def getDate(self):
-        message = self.MESSAGE
+        message = self._message
 
         date = datetime.date.today()
         result = ''
-        if message.find('послезавтра') >= 0:
+        if self._message.find('послезавтра') >= 0:
             result = date + datetime.timedelta(days=2)
-        elif message.find('завтра') >= 0:
+        elif self._message.find('завтра') >= 0:
             result = date + datetime.timedelta(days=1)
-        elif message.find('сегодня') >= 0:
+        elif self._message.find('сегодня') >= 0:
             result = date
 
         if result == '':
             pattern = r'^(\d{1,2})\.?(\d{1,2})?\s?((янв|фев|мар|июн|июл|авг|сен|окт|ноя|дек).+?)?\s?\.?(\d{4})?'
-            matches = re.search(pattern, message)
+            matches = re.search(pattern, self._message)
+            self._message = re.sub(pattern, '', self._message).strip()
+            print('message=', self._message)
             # print(matches)
             if(matches != None):
                 # length = len(matches.group(0))
@@ -72,21 +66,23 @@ class DatetimeParser():
                 else:
                      result += date.year
 
-        return result
+        return str(result)
 
 
     def getTime(self):
-        message = self.MESSAGE
+        message = self._message
 
         result = ''
         pattern = r'(\d{1,2})([:-](\d{1,2})|\s?ч(\.|(ас\w+))?)'
-        matches = re.search(pattern, message)
-        print(matches)
+        matches = re.search(pattern, self._message)
 
         if(matches != None):
-            length = matches.span(0)[1]
-            message = message[length:].strip()
-            print(message)
+            length = matches.span(0)[0]
+            self._message = self._message[length:].strip()
+            print(self._message)
+            self._message = re.sub(pattern, '', self._message).strip()
+            print('message=', self._message)
+            print(matches)
             # message = message.replace(matches.group(0), '')
             result = matches.group(1) + ':'
             if matches.group(3):
@@ -96,22 +92,9 @@ class DatetimeParser():
         
         return result
     
-
-    def test(self):
-        testMessages = ('ыва завтра в 12:30', 
-                        'ыва завтра в 12 часов lskdsdl jsalfsdk asdfkasdlkfj', 
-                        '13.08.2022 в 12:30', 
-                        '13 июля 2022 в 12:30 lskdsdl jsalfsdk asdfkasdlkfj alskd lkasdjfl sd12 22'
-        )
-        
-        for msg in testMessages:
-            self.setMessage(msg)
-            print(self.getDate())
-            print(self.getTime())
-            print(self.MESSAGE)
-            print('===============')
-
-
-dp = DatetimeParser()
-dp.test()
+    def getDateTime(self):
+        date = self.getDate()
+        time = self.getTime()
+        datetime = date + " " + time
+        return dp.parse(datetime)
 
