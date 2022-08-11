@@ -41,30 +41,33 @@ class parser():
             result = date
 
         if result == '':
+            year = str(date.year)
+            month = ''
             pattern = r'^(\d{1,2})\.?(\d{1,2})?\s?((янв|фев|мар|июн|июл|авг|сен|окт|ноя|дек).+?)?\s?\.?(\d{4})?'
             matches = re.search(pattern, self._message)
             self._message = re.sub(pattern, '', self._message).strip()
             print('message=', self._message)
             # print(matches)
             if(matches != None):
+                day = matches.group(1)
                 # length = len(matches.group(0))
                 # message = message[length:]
                 # print(message)
-                result = matches.group(1) + '.'
+                if int(day) < 10:
+                    day = '0' + day
                 if matches.group(2):
-                    result += matches.group(2) + '.'
+                    month = matches.group(2)
                 elif(matches.group(4)):
-                    month = matches.group(4)
-                    if month.isdigit():
-                        result += month + '.'
-                    else:
-                        monthNumber = self.monthToNum(month)
-                        # print(monthNumber)
-                        result += str(monthNumber) + '.'
+                    month = self.monthToNum(matches.group(4))
+                    # if month.isdigit():
+                    #     result += month + '.'
+                    # else:
+                    #     monthNumber = self.monthToNum(month)
+                    #     # print(monthNumber)
+                    #     result += str(monthNumber) + '.'
                 if matches.group(5):
-                    result += matches.group(5)
-                else:
-                     result += date.year
+                    year = matches.group(5)
+                result = year + '-' + month + '-' + day
 
         return str(result)
 
