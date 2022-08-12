@@ -7,8 +7,11 @@ class parser():
 
     _message = ''
 
-    def setMessage(self, message):
+    def __init__(self, message):
         self._message = message
+
+    def getTextEvent(self):
+        return self._message
 
 
     def monthToNum(self, shortMonth):
@@ -26,6 +29,23 @@ class parser():
                 'ноя': '11',
                 'дек': '12'
         }[shortMonth]
+
+        
+    def numToMonth(numMonth):
+        return {
+                '01': 'января',
+                '02': 'февраля',
+                '03': 'марта',
+                '04': 'апреля',
+                '05': 'мая',
+                '06': 'июня',
+                '07': 'июля',
+                '08': 'августа',
+                '09': 'сентября', 
+                '10': 'октября',
+                '11': 'ноября',
+                '12': 'декабря'
+        }[numMonth]
 
 
     def getDate(self):

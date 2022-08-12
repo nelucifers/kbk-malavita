@@ -1,5 +1,5 @@
 import sqlite3
-
+import datetime as dt
 
 
 class event:
@@ -15,12 +15,13 @@ class event:
         # self._event.append({'datetime': datetime, 'message': message})
         self._cur.execute('''DROP TABLE event;''')
         self._cur.execute('''CREATE TABLE event
-                        (datetime DATETIME NOT NULL, 
+                        (message_id TEXT NOT NULL,
+                        datetime DATETIME NOT NULL, 
                         event TEXT NOT NULL);''')
 
 
-    def insert(self, datetime, message):
-        self._con.execute(f"INSERT INTO event VALUES ('{datetime}', '{message}');")
+    def insert(self, message_id, datetime, message):
+        self._con.execute(f"INSERT INTO event VALUES ('{message_id}', '{datetime}', '{message}');")
         self._con.commit()
 
 
@@ -40,13 +41,30 @@ class event:
 
 
     def getByDate(self, date):
-        # res = _cur.execute('SELECT count(rowid) FROM event')
         res = self._cur.execute('SELECT * FROM event WHERE DATE(datetime) = ? ORDER BY datetime;', (date,))
         print('===select')
         result = res.fetchall()
         print(result)
         return result
 
+
+    def getEventsToday(self):
+        today = dt.datetime.today()
+        curDate = today.strftime('%Y-%m-%d')
+        # curDate = "2022-09-03"
+        events = self.getByDate(curDate)
+        events = self.select()
+        # return events
+        result = ''
+        for event in events:
+            strdt = dt.datetime.strptime(event[1], '%Y-%m-%d %H:%M:%S')
+            dtEvent = strdt.strftime('%d/%m %H:%M')
+            string = f'<b>{dtEvent}</b> - {event[2]}'
+            print(string)
+            result += f'\n     {string}'
+        if result == '':
+            result = '=пусто='
+        return result
 
     # def insert_varibles_into_table(datetime, message):
         # try:
@@ -71,4 +89,6 @@ class event:
         #         cursor.close()
         #         connection.close()
         #         print("MySQL connection is closed")
-            
+
+# Event = event()
+# Event.create()
